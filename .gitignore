@@ -1,0 +1,6 @@
+*.o
+*.so
+*.swp
+*.swo
+*.ignored
+sql/*--*.sql

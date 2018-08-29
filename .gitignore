@@ -4,3 +4,4 @@
 *.swo
 *.ignored
 sql/*--*.sql
+/results

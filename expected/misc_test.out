@@ -1,0 +1,29 @@
+create extension if not exists postgis;
+NOTICE:  extension "postgis" already exists, skipping
+create extension if not exists pgh3;
+NOTICE:  extension "pgh3" already exists, skipping
+/******* misc functions *********************************/
+select h3_hexagon_area_km2(4);
+ h3_hexagon_area_km2 
+---------------------
+         1770.323552
+(1 row)
+
+select h3_hexagon_area_m2(4);
+ h3_hexagon_area_m2 
+--------------------
+         1770323552
+(1 row)
+
+select h3_edge_length_km(4);
+ h3_edge_length_km 
+-------------------
+        22.6063794
+(1 row)
+
+select h3_edge_length_m(4);
+ h3_edge_length_m 
+------------------
+       22606.3794
+(1 row)
+

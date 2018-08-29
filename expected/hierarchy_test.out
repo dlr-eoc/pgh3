@@ -1,0 +1,29 @@
+create extension if not exists postgis;
+NOTICE:  extension "postgis" already exists, skipping
+create extension if not exists pgh3;
+NOTICE:  extension "pgh3" already exists, skipping
+/* hierarchy */
+select h3_to_parent('85639c63fffffff', 4);
+  h3_to_parent   
+-----------------
+ 84639c7ffffffff
+(1 row)
+
+select h3_to_parent('85639c63fffffff', 1);
+  h3_to_parent   
+-----------------
+ 8163bffffffffff
+(1 row)
+
+select h3_to_children('82639ffffffffff', 3);
+ h3_to_children  
+-----------------
+ 836398fffffffff
+ 836399fffffffff
+ 83639afffffffff
+ 83639bfffffffff
+ 83639cfffffffff
+ 83639dfffffffff
+ 83639efffffffff
+(7 rows)
+

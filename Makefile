@@ -12,6 +12,7 @@ SHLIB_LINK		+= -lh3
 DOCS			= $(wildcard doc/*.md)
 PG_CONFIG    	= pg_config
 PG91 			= $(shell $(PG_CONFIG) --version | grep -qE " 8\.| 9\.0" && echo no || echo yes)
+REGRESS			= index_test region_test hierarchy_test misc_test
 
 # the -D switch to add the version of the extension is compiler specific for gcc
 override CFLAGS			+= -I/usr/local/include/ -L/usr/local/lib/ -DEXTVERSION='"$(EXTVERSION)"'

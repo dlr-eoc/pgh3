@@ -1,0 +1,51 @@
+create extension if not exists postgis;
+create extension if not exists pgh3;
+/* indexing */
+select trunc(p[0]::numeric, 5) x, trunc(p[1]::numeric, 5) y
+from (
+    select h3_h3index_to_geo('85639c63fffffff')::point p
+) f;
+    x     |    y    
+----------+---------
+ 52.12336 | 9.40691
+(1 row)
+
+select trunc(st_x(p)::numeric, 5) x, trunc(st_y(p)::numeric, 5) y
+from (
+    select h3_h3index_to_geo('85639c63fffffff')::geometry p
+) f;
+    x     |    y    
+----------+---------
+ 52.12336 | 9.40691
+(1 row)
+
+select h3_geo_to_h3index('(9.40691761982618,52.1233617183044)'::point, 5);
+ h3_geo_to_h3index 
+-------------------
+ 851f1383fffffff
+(1 row)
+
+select h3_h3index_is_valid('85639c63fffffff'); -- is valid
+ h3_h3index_is_valid 
+---------------------
+ t
+(1 row)
+
+select h3_h3index_is_valid('85639cdddddddd'); -- is invalid
+ h3_h3index_is_valid 
+---------------------
+ f
+(1 row)
+
+select h3_get_resolution('85639c63fffffff'); -- = 5
+ h3_get_resolution 
+-------------------
+                 5
+(1 row)
+
+select h3_get_basecell('85639c63fffffff'); -- = 5
+ h3_get_basecell 
+-----------------
+              49
+(1 row)
+

@@ -1,0 +1,77 @@
+create extension if not exists postgis;
+NOTICE:  extension "postgis" already exists, skipping
+create extension if not exists pgh3;
+NOTICE:  extension "pgh3" already exists, skipping
+/* test data */
+create table test_geometries(name text primary key, geom geometry);
+insert into test_geometries (name, geom) values
+        ('polygon with hole', 'POLYGON((51.0708433295253 -23.5514097581317,61.0708433295253 11.4485902418683,31.0708433295253 6.44859024186827,26.0708433295253 -13.5514097581317,51.0708433295253 -23.5514097581317),(36.0708433295253 -3.55140975813173,51.0708433295253 1.44859024186827,46.0708433295253 -13.5514097581317,36.0708433295253 -3.55140975813173))'::geometry),
+        ('multipolygon with hole', 'MULTIPOLYGON(((1.42997600913934 32.3311063409985,-18.5700239908607 37.3311063409985,6.42997600913934 22.3311063409985,1.42997600913934 32.3311063409985)),((-18.5700239908607 27.3311063409985,-28.5700239908607 22.3311063409985,-28.5700239908607 2.33110634099847,-8.57002399086066 -2.66889365900153,6.42997600913934 12.3311063409985,-18.5700239908607 27.3311063409985),(-8.57002399086066 12.3311063409985,-18.5700239908607 7.33110634099847,-18.5700239908607 17.3311063409985,-8.57002399086066 12.3311063409985)))');
+/* region */
+select h3_polyfill_estimate(geom, 1) 
+    from test_geometries where name = 'polygon with hole';
+ h3_polyfill_estimate 
+----------------------
+                   61
+(1 row)
+
+select array_length(array_agg(i), 1)
+    from ( select h3_polyfill(geom, 1) i
+        from test_geometries 
+        where name = 'polygon with hole' ) f;
+ array_length 
+--------------
+           15
+(1 row)
+
+select i 
+    from (
+    select h3_polyfill(geom, 1) i
+        from test_geometries where name = 'polygon with hole'
+) f
+order by i;
+        i        
+-----------------
+ 81623ffffffffff
+ 8162bffffffffff
+ 816afffffffffff
+ 817a3ffffffffff
+ 817a7ffffffffff
+ 817abffffffffff
+ 817afffffffffff
+ 817b3ffffffffff
+ 817bbffffffffff
+ 81963ffffffffff
+ 8196bffffffffff
+ 8197bffffffffff
+ 81a23ffffffffff
+ 81a33ffffffffff
+ 81a37ffffffffff
+(15 rows)
+
+select i 
+    from (
+    select h3_polyfill(geom, 1) i
+        from test_geometries where name = 'multipolygon with hole'
+) f
+order by i;
+        i        
+-----------------
+ 8139bffffffffff
+ 81543ffffffffff
+ 81547ffffffffff
+ 8154bffffffffff
+ 81557ffffffffff
+ 8155bffffffffff
+ 81567ffffffffff
+ 81577ffffffffff
+ 8159bffffffffff
+ 81743ffffffffff
+ 8174bffffffffff
+ 81753ffffffffff
+ 8175bffffffffff
+ 817c7ffffffffff
+ 817cbffffffffff
+ 817cfffffffffff
+(16 rows)
+

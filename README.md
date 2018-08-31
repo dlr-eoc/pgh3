@@ -1,6 +1,6 @@
 # [PostgreSQL](https://www.postgresql.org) extension for the [H3](https://uber.github.io/h3) hierarchical geospatial indexing system
 
------------------------------------------
+![](doc/hexagons-example.png)
 
 To see the functions implemented in this extension please refer to the [SQL API](doc/pgh3.md).
 

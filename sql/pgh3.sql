@@ -124,15 +124,15 @@ comment on function h3_edge_length_m(resolution integer) is 'Average hexagon edg
 
 /******* region functions *********************************/
 
-CREATE FUNCTION _h3_polyfill_polygon(exterior_ring polygon, interior_rings polygon[],  
+CREATE FUNCTION _h3_polyfill_polygon_c(exterior_ring polygon, interior_rings polygon[],  
                             resolution integer) RETURNS SETOF text
 AS 'pgh3', '_h3_polyfill_polygon'
 IMMUTABLE LANGUAGE C;
-comment on function _h3_polyfill_polygon(exterior_ring polygon, interior_rings polygon[], resolution integer) is
+comment on function _h3_polyfill_polygon_c(exterior_ring polygon, interior_rings polygon[], resolution integer) is
     'Fills the given exterior ring with hexagons at the given resolution. The interior_ring polygons are understood as holes and will be omitted.';
 
 
-create function h3_polyfill_polygon(polygong geometry, resolution integer) returns setof text as $$
+create function _h3_polyfill_polygon(polygong geometry, resolution integer) returns setof text as $$
 declare
     exterior_ring polygon;
     interior_rings polygon[];
@@ -154,12 +154,12 @@ begin
         where gs.i > 0 /* index starts with 1 */
     ) rings;
 
-    return query select _h3_polyfill_polygon(exterior_ring, interior_rings, resolution);
+    return query select _h3_polyfill_polygon_c(exterior_ring, interior_rings, resolution);
 
     return;
 end;
 $$ language plpgsql immutable strict;
-comment on function h3_polyfill_polygon(polygong geometry, resolution integer) is 
+comment on function _h3_polyfill_polygon(polygong geometry, resolution integer) is 
     'Fills the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.';
 
 
@@ -167,9 +167,9 @@ create function h3_polyfill(geom geometry, resolution integer) returns setof tex
 begin
 
     if st_geometrytype(geom) = 'ST_Polygon' then
-        return query select h3_polyfill_polygon(geom, resolution);
+        return query select _h3_polyfill_polygon(geom, resolution);
     elsif st_geometrytype(geom) = 'ST_MultiPolygon' then
-        return query select distinct h3_polyfill_polygon(g, resolution)
+        return query select distinct _h3_polyfill_polygon(g, resolution)
             from (
                 select (st_dump(geom)).geom as g
             ) d;
@@ -181,18 +181,28 @@ begin
 end;
 $$ language plpgsql immutable strict;
 comment on function h3_polyfill(polygong geometry, resolution integer) is 
-    'Fills the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.';
+    'Fills the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.
+
+The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending of the size of the
+given polygon, its shape and the resolution this may exhaust the memory given to PostgreSQL in its configuration. In this case
+this function will be terminated by the database server and a corresponding notice will be given.
+
+There are essentially two ways to work around this issue:
+
+* Increase PostgreSQLs memory
+* Cut the polygon into segments and run this function to each of them seperately. The PostGIS functions `ST_Subdivide`, `ST_Split` and `ST_Segmentize` may be helpful.
+';
 
 
-CREATE FUNCTION _h3_polyfill_polygon_estimate(exterior_ring polygon, interior_rings polygon[],  
+CREATE FUNCTION _h3_polyfill_polygon_estimate_c(exterior_ring polygon, interior_rings polygon[],  
             resolution integer) RETURNS integer
 AS 'pgh3', '_h3_polyfill_polygon_estimate'
 IMMUTABLE LANGUAGE C;
-comment on function _h3_polyfill_polygon_estimate(exterior_ring polygon, interior_rings polygon[], resolution integer) is
+comment on function _h3_polyfill_polygon_estimate_c(exterior_ring polygon, interior_rings polygon[], resolution integer) is
     'Estimate the number of indexes required to fill the given exterior ring with hexagons at the given resolution. The interior_ring polygons are understood as holes and will be omitted.';
 
 
-create function h3_polyfill_polygon_estimate(polygong geometry, resolution integer) returns integer as $$
+create function _h3_polyfill_polygon_estimate(polygong geometry, resolution integer) returns integer as $$
 declare
     exterior_ring polygon;
     interior_rings polygon[];
@@ -215,13 +225,13 @@ begin
         where gs.i > 0 /* index starts with 1 */
     ) rings;
 
-    select _h3_polyfill_polygon_estimate(exterior_ring, interior_rings, resolution)
+    select _h3_polyfill_polygon_estimate_c(exterior_ring, interior_rings, resolution)
             into result;
 
     return result;
 end;
 $$ language plpgsql immutable strict;
-comment on function h3_polyfill_polygon_estimate(polygong geometry, resolution integer) is 
+comment on function _h3_polyfill_polygon_estimate(polygong geometry, resolution integer) is 
     'Estimate the number of indexes required to fill the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.';
 
 
@@ -231,11 +241,11 @@ declare
 begin
 
     if st_geometrytype(geom) = 'ST_Polygon' then
-        select h3_polyfill_polygon_estimate(geom, resolution) into result;
+        select _h3_polyfill_polygon_estimate(geom, resolution) into result;
     elsif st_geometrytype(geom) = 'ST_MultiPolygon' then
         select sum(u) into result
             from (
-            select distinct h3_polyfill_polygon_estimate(g, resolution) u
+            select distinct _h3_polyfill_polygon_estimate(g, resolution) u
                 from (
                     select (st_dump(geom)).geom as g
                 ) d

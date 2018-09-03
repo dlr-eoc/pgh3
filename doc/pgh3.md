@@ -1,7 +1,7 @@
 
 # PostgreSQL H3 extension
 
-Postgresql extension to wrap the hexagonal hierarchical geospatial indexing system of [h3 library](https://github.com/uber/h3).
+PostgreSQL extension to wrap the hexagonal hierarchical geospatial indexing system of [H3 library](https://github.com/uber/h3).
 
 
 ## Functions
@@ -118,6 +118,16 @@ __Returntype:__ `double precision`
 
 Fills the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.
 
+The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending of the size of the
+given polygon, its shape and the resolution this may exhaust the memory given to PostgreSQL in its configuration. In this case
+this function will be terminated by the database server and a corresponding notice will be given.
+
+There are essentially two ways to work around this issue:
+
+* Increase PostgreSQLs memory
+* Cut the polygon into segments and run this function to each of them seperately. The  PostGIS functions `ST_Subdivide`, `ST_Split` and `ST_Segmentize` may be helpful.
+
+
 __Synopsis:__ `h3_polyfill(geom geometry, resolution integer)`
 
 __Returntype:__ `SETOF text`
@@ -128,24 +138,6 @@ __Returntype:__ `SETOF text`
 Estimate the number of indexes required to fill the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.
 
 __Synopsis:__ `h3_polyfill_estimate(geom geometry, resolution integer)`
-
-__Returntype:__ `integer`
-
-
-### h3_polyfill_polygon
-
-Fills the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.
-
-__Synopsis:__ `h3_polyfill_polygon(polygong geometry, resolution integer)`
-
-__Returntype:__ `SETOF text`
-
-
-### h3_polyfill_polygon_estimate
-
-Estimate the number of indexes required to fill the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.
-
-__Synopsis:__ `h3_polyfill_polygon_estimate(polygong geometry, resolution integer)`
 
 __Returntype:__ `integer`
 
@@ -193,18 +185,36 @@ __Returntype:__ `polygon`
 
 ### _h3_polyfill_polygon
 
+Fills the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.
+
+__Synopsis:__ `_h3_polyfill_polygon(polygong geometry, resolution integer)`
+
+__Returntype:__ `SETOF text`
+
+
+### _h3_polyfill_polygon_c
+
 Fills the given exterior ring with hexagons at the given resolution. The interior_ring polygons are understood as holes and will be omitted.
 
-__Synopsis:__ `_h3_polyfill_polygon(exterior_ring polygon, interior_rings polygon[], resolution integer)`
+__Synopsis:__ `_h3_polyfill_polygon_c(exterior_ring polygon, interior_rings polygon[], resolution integer)`
 
 __Returntype:__ `SETOF text`
 
 
 ### _h3_polyfill_polygon_estimate
 
+Estimate the number of indexes required to fill the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.
+
+__Synopsis:__ `_h3_polyfill_polygon_estimate(polygong geometry, resolution integer)`
+
+__Returntype:__ `integer`
+
+
+### _h3_polyfill_polygon_estimate_c
+
 Estimate the number of indexes required to fill the given exterior ring with hexagons at the given resolution. The interior_ring polygons are understood as holes and will be omitted.
 
-__Synopsis:__ `_h3_polyfill_polygon_estimate(exterior_ring polygon, interior_rings polygon[], resolution integer)`
+__Synopsis:__ `_h3_polyfill_polygon_estimate_c(exterior_ring polygon, interior_rings polygon[], resolution integer)`
 
 __Returntype:__ `integer`
 

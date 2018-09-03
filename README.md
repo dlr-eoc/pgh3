@@ -2,7 +2,10 @@
 
 ![](doc/hexagons-example.png)
 
+This extension integrates with the [PostGIS](https://postgis.net/) geometry type. Namely `Point`, `Polygon` and `MultiPolygon` geometries are supported.
+
 To see the functions implemented in this extension please refer to the [SQL API](doc/pgh3.md).
+
 
 ## Installation
 

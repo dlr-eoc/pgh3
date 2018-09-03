@@ -12,7 +12,7 @@ Postgresql extension to wrap the hexagonal hierarchical geospatial indexing syst
 
 '''
 
-def function_defs(cur, ffilter='h3_%'):
+def function_defs(cur, ffilter='h3\\_%'):
     cur.execute('''
             select proc.oid, 
                     proc.proname as name, 
@@ -21,7 +21,7 @@ def function_defs(cur, ffilter='h3_%'):
                     dsc.description as desc
             from pg_proc proc
             left join pg_description dsc on dsc.objoid = proc.oid
-            where proname like %s
+            where proname like %s escape '\\'
             order by proc.proname''', [ffilter])
     return cur.fetchall()
 

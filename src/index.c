@@ -78,7 +78,7 @@ _h3_h3index_to_geo(PG_FUNCTION_ARGS)
     h3ToGeo(index, &coord);
 
     // return as a postgresql native point
-    Point *p = __h3_palloc(sizeof(Point));
+    Point *p = palloc0(sizeof(Point));
     p->y = radsToDegs(coord.lat);
     p->x = radsToDegs(coord.lon);
 
@@ -112,7 +112,7 @@ _h3_h3index_to_geoboundary(PG_FUNCTION_ARGS)
     // initialize the POLYGON structure
     POLYGON *poly = NULL;
     int size = offsetof(POLYGON, p) + (sizeof(poly->p[0]) * gp.numVerts);
-    poly = (POLYGON*) __h3_palloc(size);
+    poly = (POLYGON*) palloc0(size);
     SET_VARSIZE(poly, size);
 
     poly->npts = gp.numVerts;

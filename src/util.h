@@ -39,7 +39,6 @@
                 (errmsg(msg, ##__VA_ARGS__)));
 
 
-void * __h3_palloc(size_t);
 text * __h3_index_to_text(H3Index);
 void __h3_make_bound_box(POLYGON *poly);
 bool __h3_index_from_cstring(const char *str, H3Index *index);

@@ -53,7 +53,7 @@ __h3_pgpolygon_to_geogence(POLYGON *poly, Geofence *geofence)
 {
 
     // initialize the Geofence structure
-    geofence->verts = (GeoCoord*) __h3_palloc(
+    geofence->verts = (GeoCoord*) palloc0(
                 (sizeof(geofence->verts[0]) * poly->npts));
 
     geofence->numVerts = poly->npts;
@@ -97,7 +97,7 @@ __h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, Ar
             get_typlenbyvalalign(elemtype, &typlen, &typbyval, &typalign);
 
             h3polygon->numHoles = dim[0];
-            h3polygon->holes = (Geofence *) __h3_palloc(h3polygon->numHoles * (sizeof(Geofence)));
+            h3polygon->holes = (Geofence *) palloc0(h3polygon->numHoles * (sizeof(Geofence)));
 
             bool isnull;
             Datum interior_rings_datum = PointerGetDatum(interior_rings);
@@ -150,7 +150,7 @@ _h3_polyfill_polygon(PG_FUNCTION_ARGS)
         report_debug1("Generating an estimated number of %d H3 "
                         "hexagons at resolution %d", numHexagons, resolution);
 
-        hexagons = __h3_palloc(numHexagons * sizeof(H3Index));
+        hexagons = palloc0(numHexagons * sizeof(H3Index));
         polyfill(&h3polygon, resolution, hexagons);
         __h3_free_geopolygon_internal_structs(&h3polygon);
 

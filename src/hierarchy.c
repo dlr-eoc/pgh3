@@ -89,7 +89,7 @@ h3_to_children(PG_FUNCTION_ARGS)
         report_debug1("Generating %d H3 child hexagons at resolution %d", 
                         num_children, child_resolution);
 
-        hexagons = __h3_palloc(num_children * sizeof(H3Index));
+        hexagons = palloc0(num_children * sizeof(H3Index));
         h3ToChildren(parent_index, child_resolution, hexagons);
 
         if (max_calls > 0) {

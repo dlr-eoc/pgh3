@@ -21,23 +21,6 @@
 
 #define H3_INDEX_STR_LEN 17
 
-/** 
- * wrapper around palloc to allocate memory and initialize it to NULL.
- */
-void *
-__h3_palloc(size_t s) 
-{
-    void * mem = palloc(s);
-
-    /*
-     * initialize to NULL. 
-     * See https://www.postgresql.org/docs/9.5/static/xfunc-c.html
-     */
-    memset(mem, 0, s); 
-
-    return mem;
-}
-
 
 /*
  * Convert an H3Index to a text*
@@ -45,7 +28,7 @@ __h3_palloc(size_t s)
 text *
 __h3_index_to_text(H3Index index) 
 {
-    char *outstr = (char *) __h3_palloc(H3_INDEX_STR_LEN * sizeof(char));
+    char *outstr = (char *) palloc0(H3_INDEX_STR_LEN * sizeof(char));
     SET_VARSIZE(outstr, H3_INDEX_STR_LEN * sizeof(char));
 
     h3ToString(index, outstr, H3_INDEX_STR_LEN);

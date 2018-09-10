@@ -106,7 +106,7 @@ __h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, Ar
                 Datum ring_datum = array_get_element(interior_rings_datum, ndim, &i, 
                             -1, typlen, typbyval, typalign, &isnull);
                 if (isnull) {
-                    fail_and_report("lat coordinate at position %d is null", i);
+                    fail_and_report("interior ring at position %d is null", i);
                 }
                 
                 POLYGON *ring = DatumGetPolygonP(ring_datum);

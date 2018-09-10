@@ -49,7 +49,7 @@ __h3_free_geopolygon_internal_structs(GeoPolygon *h3polygon) {
 }
 
 static void
-__h3_pgpolygon_to_geogence(POLYGON *poly, Geofence *geofence)
+__h3_pgpolygon_to_geofence(POLYGON *poly, Geofence *geofence)
 {
 
     // initialize the Geofence structure
@@ -73,7 +73,7 @@ __h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, Ar
     h3polygon->geofence.verts = NULL;
 
     // fill the geofence of the h3 struct with the values of the exterior ring.
-    __h3_pgpolygon_to_geogence(exterior_ring, &(h3polygon->geofence));
+    __h3_pgpolygon_to_geofence(exterior_ring, &(h3polygon->geofence));
 
     if (interior_rings != NULL) {
         int ndim = ARR_NDIM(interior_rings);
@@ -110,7 +110,7 @@ __h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, Ar
                 }
                 
                 POLYGON *ring = DatumGetPolygonP(ring_datum);
-                __h3_pgpolygon_to_geogence(ring, &(h3polygon->holes[i - 1]));
+                __h3_pgpolygon_to_geofence(ring, &(h3polygon->holes[i - 1]));
             }
         }
     }

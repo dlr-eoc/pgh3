@@ -1,7 +1,7 @@
 
 # PostgreSQL H3 extension
 
-PostgreSQL extension to wrap the hexagonal hierarchical geospatial indexing system of [H3 library](https://github.com/uber/h3).
+Postgresql extension to wrap the hexagonal hierarchical geospatial indexing system of [h3 library](https://github.com/uber/h3).
 
 
 ## Functions
@@ -114,6 +114,15 @@ __Synopsis:__ `h3_hexagon_area_m2(resolution integer)`
 __Returntype:__ `double precision`
 
 
+### h3_kring
+
+Returns the neigbor indices within the given distance.
+
+__Synopsis:__ `h3_kring(h3index text, distance integer)`
+
+__Returntype:__ `SETOF text`
+
+
 ### h3_polyfill
 
 Fills the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.
@@ -125,7 +134,7 @@ this function will be terminated by the database server and a corresponding noti
 There are essentially two ways to work around this issue:
 
 * Increase PostgreSQLs memory
-* Cut the polygon into segments and run this function to each of them seperately. The  PostGIS functions `ST_Subdivide`, `ST_Split` and `ST_Segmentize` may be helpful.
+* Cut the polygon into segments and run this function to each of them seperately. The PostGIS functions `ST_Subdivide`, `ST_Split` and `ST_Segmentize` may be helpful.
 
 
 __Synopsis:__ `h3_polyfill(geom geometry, resolution integer)`

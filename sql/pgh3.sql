@@ -100,6 +100,13 @@ as 'pgh3', 'h3_to_children'
 IMMUTABLE LANGUAGE C STRICT ;
 comment on function h3_to_children(h3index text, resolution integer) is 'Returns the children (finer) indeesx contained the given index.';
 
+/******* neigbor functions *********************************/
+
+create function h3_kring(h3index text, distance integer) returns setof text
+as 'pgh3', 'h3_kring'
+IMMUTABLE LANGUAGE C STRICT ;
+comment on function h3_kring(h3index text, distance integer) is 'Returns the neigbor indices within the given distance.';
+
 /******* misc functions *********************************/
 
 create function h3_hexagon_area_km2(resolution integer) returns double precision

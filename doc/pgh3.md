@@ -192,15 +192,6 @@ __Synopsis:__ `_h3_h3index_to_geoboundary(h3index text)`
 __Returntype:__ `polygon`
 
 
-### _h3_polyfill_polygon
-
-Fills the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.
-
-__Synopsis:__ `_h3_polyfill_polygon(polygong geometry, resolution integer)`
-
-__Returntype:__ `SETOF text`
-
-
 ### _h3_polyfill_polygon_c
 
 Fills the given exterior ring with hexagons at the given resolution. The interior_ring polygons are understood as holes and will be omitted.
@@ -208,15 +199,6 @@ Fills the given exterior ring with hexagons at the given resolution. The interio
 __Synopsis:__ `_h3_polyfill_polygon_c(exterior_ring polygon, interior_rings polygon[], resolution integer)`
 
 __Returntype:__ `SETOF text`
-
-
-### _h3_polyfill_polygon_estimate
-
-Estimate the number of indexes required to fill the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.
-
-__Synopsis:__ `_h3_polyfill_polygon_estimate(polygong geometry, resolution integer)`
-
-__Returntype:__ `integer`
 
 
 ### _h3_polyfill_polygon_estimate_c

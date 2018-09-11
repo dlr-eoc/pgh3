@@ -139,50 +139,30 @@ comment on function _h3_polyfill_polygon_c(exterior_ring polygon, interior_rings
     'Fills the given exterior ring with hexagons at the given resolution. The interior_ring polygons are understood as holes and will be omitted.';
 
 
-create function _h3_polyfill_polygon(polygong geometry, resolution integer) returns setof text as $$
-declare
-    exterior_ring polygon;
-    interior_rings polygon[];
-begin
-
-    if st_geometrytype(polygong) != 'ST_Polygon' then
-        raise exception 'h3_polyfill_polygon only supports polygon geometries';
-    end if;
-
-    select st_makepolygon(st_exteriorring(polygong))::polygon into exterior_ring;
-
-    select array_agg(ring) into interior_rings
-    from (
-        select i as ring_i,
-            st_makepolygon(st_interiorringn(polygong, i))::polygon ring
-        from (
-            select generate_series(0, st_numinteriorrings(polygong)) i
-        ) gs
-        where gs.i > 0 /* index starts with 1 */
-    ) rings;
-
-    return query select _h3_polyfill_polygon_c(exterior_ring, interior_rings, resolution);
-
-    return;
-end;
-$$ language plpgsql immutable strict;
-comment on function _h3_polyfill_polygon(polygong geometry, resolution integer) is 
-    'Fills the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.';
-
-
 create function h3_polyfill(geom geometry, resolution integer) returns setof text as $$
 begin
 
-    if st_geometrytype(geom) = 'ST_Polygon' then
-        return query select _h3_polyfill_polygon(geom, resolution);
-    elsif st_geometrytype(geom) = 'ST_MultiPolygon' then
-        return query select distinct _h3_polyfill_polygon(g, resolution)
-            from (
-                select (st_dump(geom)).geom as g
-            ) d;
-    else
-        raise exception 'h3_polyfill only supports polygon and multipolygon geometries';
-    end if;
+    return query select _h3_polyfill_polygon_c(exterior_ring, interior_rings, resolution)
+    from (
+        select 
+            st_makepolygon(st_exteriorring(g))::polygon exterior_ring,
+            (select array_agg(st_makepolygon(st_interiorringn(g, i))::polygon) rings
+                from (
+                    select generate_series(0, st_numinteriorrings(g)) i
+                ) gs
+                where gs.i > 0 -- index starts with 1 
+            ) interior_rings
+        from (
+            select geom g
+                where st_geometrytype(geom) = 'ST_Polygon'
+            union select g
+                from (
+                    select (st_dump(geom)).geom as g 
+                    where st_geometrytype(geom) = 'ST_MultiPolygon'
+                ) d
+        ) polys
+        group by g
+    ) pg_polys;
 
     return;
 end;
@@ -209,57 +189,32 @@ comment on function _h3_polyfill_polygon_estimate_c(exterior_ring polygon, inter
     'Estimate the number of indexes required to fill the given exterior ring with hexagons at the given resolution. The interior_ring polygons are understood as holes and will be omitted.';
 
 
-create function _h3_polyfill_polygon_estimate(polygong geometry, resolution integer) returns integer as $$
-declare
-    exterior_ring polygon;
-    interior_rings polygon[];
-    result integer;
-begin
-
-    if st_geometrytype(polygong) != 'ST_Polygon' then
-        raise exception 'h3_polyfill_polygon only supports polygon geometries';
-    end if;
-
-    select st_makepolygon(st_exteriorring(polygong))::polygon into exterior_ring;
-
-    select array_agg(ring) into interior_rings
-    from (
-        select i as ring_i,
-            st_makepolygon(st_interiorringn(polygong, i))::polygon ring
-        from (
-            select generate_series(0, st_numinteriorrings(polygong)) i
-        ) gs
-        where gs.i > 0 /* index starts with 1 */
-    ) rings;
-
-    select _h3_polyfill_polygon_estimate_c(exterior_ring, interior_rings, resolution)
-            into result;
-
-    return result;
-end;
-$$ language plpgsql immutable strict;
-comment on function _h3_polyfill_polygon_estimate(polygong geometry, resolution integer) is 
-    'Estimate the number of indexes required to fill the given PostGIS polygon with hexagons at the given resolution. Holes in the polygon will be omitted.';
-
-
 create function h3_polyfill_estimate(geom geometry, resolution integer) returns integer as $$
 declare
     result integer;
 begin
 
-    if st_geometrytype(geom) = 'ST_Polygon' then
-        select _h3_polyfill_polygon_estimate(geom, resolution) into result;
-    elsif st_geometrytype(geom) = 'ST_MultiPolygon' then
-        select sum(u) into result
-            from (
-            select distinct _h3_polyfill_polygon_estimate(g, resolution) u
+    select sum(_h3_polyfill_polygon_estimate_c(exterior_ring, interior_rings, resolution)) into result
+    from (
+        select 
+            st_makepolygon(st_exteriorring(g))::polygon exterior_ring,
+            (select array_agg(st_makepolygon(st_interiorringn(g, i))::polygon) rings
                 from (
-                    select (st_dump(geom)).geom as g
+                    select generate_series(0, st_numinteriorrings(g)) i
+                ) gs
+                where gs.i > 0 -- index starts with 1 
+            ) interior_rings
+        from (
+            select geom g
+                where st_geometrytype(geom) = 'ST_Polygon'
+            union select g
+                from (
+                    select (st_dump(geom)).geom as g 
+                    where st_geometrytype(geom) = 'ST_MultiPolygon'
                 ) d
-            ) f;
-    else
-        raise exception 'h3_polyfill only supports polygon and multipolygon geometries';
-    end if;
+        ) polys
+        group by g
+    ) pg_polys;
 
     return result;
 end;

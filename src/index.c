@@ -1,6 +1,7 @@
 /*
  * Copyright 2018 Deutsches Zentrum für Luft- und Raumfahrt e.V. 
- *         (German Aerospace Center), Earth Observation Center
+ *         (German Aerospace Center), German Remote Sensing Data Center
+ *         Department: Geo-Risks and Civil Security
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");

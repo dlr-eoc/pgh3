@@ -39,3 +39,11 @@ For usage examples see the unittests in the `sql/*_test.sql` files.
 
 * Implement more parts of the H3 API
 * Use the `numeric`-type for H3 indexes?
+
+# Legal an Licensing
+
+This software is licensed under the [Apache 2.0 License](LICENSE.txt).
+
+(c) 2018 German Aerospace Center (DLR); German Remote Sensing Data Center; Department: Geo-Risks and Civil Security
+
+[![UKIS](doc/ukis-logo.png)](https://www.dlr.de/eoc/en/desktopdefault.aspx/tabid-5413/10560_read-21914/)

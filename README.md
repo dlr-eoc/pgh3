@@ -9,9 +9,22 @@ To see the functions implemented in this extension please refer to the [SQL API]
 
 ## Installation
 
-__Compile H3 as a shared library__. The source is available on [github](https://github.com/uber/h3), there are also detailed instructions for building H3 available in that repository, but to make H3 work with this extension there are are two addtiional build flags required:
+__Compile H3 as a shared library__. The source is available on [github](https://github.com/uber/h3), there are als
+o detailed instructions for building H3 available in that repository, but to make H3 work with this extension there 
+are additional build flags required. There are essentialy two ways to compile H3 which allow building the pgh3 extension
+later.
 
-    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr
+Compile H3 as a static library. This allows statically linking H3 to the pgh3 extension. 
+
+    cmake -DCMAKE_C_FLAGS=-fPIC .
+    make
+    sudo make install
+
+Or compile H3 as a shared library. This creates a dynamically loaded library which may also be used by other programs. When
+you update the H3 library, all programms using it will automatically use the new version (PostgreSQL needs to 
+be restarted for that).
+
+    cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr .
     make
     sudo make install
 
@@ -28,7 +41,7 @@ __Run the tests__ (this is an optional step):
 
 ## Usage
 
-Before using this extension, it needs to be added to the databses using postgresqls [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/sql-createextension.html) command:
+Before using this extension, it needs to be added to the databases using postgresqls [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/sql-createextension.html) command:
 
     create extension postgis; -- dependency of pgh3, must be created first
     create extension pgh3;

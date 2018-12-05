@@ -15,7 +15,7 @@ PG91 			= $(shell $(PG_CONFIG) --version | grep -qE " 8\.| 9\.0" && echo no || e
 REGRESS			= index_test region_test hierarchy_test misc_test
 
 # the -D switch to add the version of the extension is compiler specific for gcc
-override CFLAGS			+= -I/usr/local/include/ -L/usr/local/lib/ -DEXTVERSION='"$(EXTVERSION)"'
+override CFLAGS			+= -I/usr/local/include/ -L/usr/local/lib/ -DEXTVERSION='"$(EXTVERSION)"' -std=c11
 
 
 ifeq ($(PG91),yes)

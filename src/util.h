@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+#ifndef __PGH3_UTIL_H__
+#define __PGH3_UTIL_H__
 
 #include "postgres.h"
 #include "fmgr.h"
@@ -39,7 +41,13 @@
             ereport(DEBUG1, \
                 (errmsg(msg, ##__VA_ARGS__)));
 
+// See https://www.postgresql.org/docs/9.2/runtime-config-custom.html for adding
+// custom options
+#define PGH3_POLYFILL_MEM_SETTING_NAME "pgh3.polyfill_mem"
 
 text * __h3_index_to_text(H3Index);
 void __h3_make_bound_box(POLYGON *poly);
 bool __h3_index_from_cstring(const char *str, H3Index *index);
+void * __h3_polyfill_palloc0(size_t size);
+
+#endif // __PGH3_UTIL_H__

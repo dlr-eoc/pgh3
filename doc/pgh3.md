@@ -128,13 +128,17 @@ __Returntype:__ `SETOF text`
 Fills the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.
 
 The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending of the size of the
-given polygon, its shape and the resolution this may exhaust the memory given to PostgreSQL in its configuration. In this case
+given polygon, its shape and the resolution this may exhaust the memory given to this extension. In this case
 this function will be terminated by the database server and a corresponding notice will be given.
 
-There are essentially two ways to work around this issue:
+This memory limit can be increased using the `pgh3.polyfill_mem` configuration parameter in the `postgresql.conf` file. The 
+default value for this setting 1024MB (PostgreSQL internal `MaxAllocSize`). Syntax for the setting is
 
-* Increase PostgreSQLs memory
-* Cut the polygon into segments and run this function to each of them seperately. The PostGIS functions `ST_Subdivide`, `ST_Split` and `ST_Segmentize` may be helpful.
+    pgh3.polyfill_mem = 1024MB
+
+For values larger than `MaxAllocSize`, the PostgreSQL `MemoryContextAllocHuge` allocator will be used.
+
+If this does not resolve the issue, there is essentially one way to work around this issue: Cut the polygon into segments and run this function to each of them seperately. The PostGIS functions `ST_Subdivide`, `ST_Split` and `ST_Segmentize` may be helpful.
 
 
 __Synopsis:__ `h3_polyfill(geom geometry, resolution integer)`

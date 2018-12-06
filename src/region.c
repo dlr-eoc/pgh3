@@ -1,15 +1,15 @@
 /*
- * Copyright 2018 Deutsches Zentrum für Luft- und Raumfahrt e.V. 
+ * Copyright 2018 Deutsches Zentrum für Luft- und Raumfahrt e.V.
  *         (German Aerospace Center), German Remote Sensing Data Center
  *         Department: Geo-Risks and Civil Security
- * 
- * 
+ *
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,10 +66,10 @@ __h3_pgpolygon_to_geofence(POLYGON *poly, Geofence *geofence)
 }
 
 static void
-__h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, ArrayType *interior_rings) 
+__h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, ArrayType *interior_rings)
 {
     // initialize
-    h3polygon->numHoles = 0; 
+    h3polygon->numHoles = 0;
     h3polygon->holes = NULL;
     h3polygon->geofence.verts = NULL;
 
@@ -104,12 +104,12 @@ __h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, Ar
             Datum interior_rings_datum = PointerGetDatum(interior_rings);
             for (int i = 1; i <= dim[0]; i++) {
 
-                Datum ring_datum = array_get_element(interior_rings_datum, ndim, &i, 
+                Datum ring_datum = array_get_element(interior_rings_datum, ndim, &i,
                             -1, typlen, typbyval, typalign, &isnull);
                 if (isnull) {
                     fail_and_report("interior ring at position %d is null", i);
                 }
-                
+
                 POLYGON *ring = DatumGetPolygonP(ring_datum);
                 __h3_pgpolygon_to_geofence(ring, &(h3polygon->holes[i - 1]));
             }
@@ -146,12 +146,16 @@ _h3_polyfill_polygon(PG_FUNCTION_ARGS)
 
         GeoPolygon h3polygon;
         __h3_polyfill_build_geopolygon(&h3polygon, exterior_ring, interior_rings);
-        
+
         int numHexagons = maxPolyfillSize(&h3polygon, resolution);
+
+        // POSSIBLE ISSUE: integer may overflow on  high number of hexagons. this is an issue to
+        // be handled in H3 itself (using unsigned long, ... etc as the return type).
+
         report_debug1("Generating an estimated number of %d H3 "
                         "hexagons at resolution %d", numHexagons, resolution);
 
-        hexagons = palloc0(numHexagons * sizeof(H3Index));
+        hexagons = __h3_polyfill_palloc0(numHexagons * sizeof(H3Index));
         polyfill(&h3polygon, resolution, hexagons);
         __h3_free_geopolygon_internal_structs(&h3polygon);
 
@@ -167,7 +171,7 @@ _h3_polyfill_polygon(PG_FUNCTION_ARGS)
                 max_calls++;
             }
         }
-        report_debug1("Generated exactly %d H3 hexagons at resolution %d", 
+        report_debug1("Generated exactly %d H3 hexagons at resolution %d",
                     max_calls, resolution);
 
         if (max_calls > 0) {
@@ -226,7 +230,7 @@ _h3_polyfill_polygon_estimate(PG_FUNCTION_ARGS)
 
     GeoPolygon h3polygon;
     __h3_polyfill_build_geopolygon(&h3polygon, exterior_ring, interior_rings);
-    
+
     int numHexagons = maxPolyfillSize(&h3polygon, resolution);
 
     __h3_free_geopolygon_internal_structs(&h3polygon);

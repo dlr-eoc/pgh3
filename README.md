@@ -39,6 +39,23 @@ __Run the tests__ (this is an optional step):
 
     make installcheck
 
+## Configuration
+
+This extensions allows configuring some parts of its behaviour. This configuration is done using additional keys to `postgresql.conf`
+
+### pgh3.polyfill_mem
+
+The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending of the size of the
+given polygon, its shape and the resolution this may exhaust the memory given to this extension. In this case
+this function will be terminated by the database server and a corresponding notice will be given.
+
+This memory limit can be increased using the `pgh3.polyfill_mem` configuration parameter in the `postgresql.conf` file. The 
+default value for this setting 1024MB (PostgreSQL internal `MaxAllocSize`). Syntax for the setting is
+
+    pgh3.polyfill_mem = 1024MB
+
+For values larger than `MaxAllocSize`, the PostgreSQL `MemoryContextAllocHuge` allocator will be used.
+
 ## Usage
 
 Before using this extension, it needs to be added to the databases using postgresqls [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/sql-createextension.html) command:

@@ -33,6 +33,10 @@
              ereport(ERROR, \
                 (errcode(ERRCODE_EXTERNAL_ROUTINE_EXCEPTION), errmsg(msg, ##__VA_ARGS__)));
 
+#define fail_and_report_with_code(code, msg, ...) \
+             ereport(ERROR, \
+                (errcode(code), errmsg(msg, ##__VA_ARGS__)));
+
 #define report_notice(msg, ...) \
             ereport(NOTICE, \
                 (errmsg(msg, ##__VA_ARGS__)));

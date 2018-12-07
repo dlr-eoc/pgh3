@@ -117,6 +117,41 @@ __h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, Ar
     }
 }
 
+
+/**
+ * attempt to check the result of maxPolyfillSize for integer overflows.
+ *
+ * maxPolyfillSize uses an integer to return the number of estimated hexagons,
+ * for large polygons and/or high resolutions this may exceed the capacity
+ * of the integer type.
+ *
+ * This function certainly does not catch all cases of an overflow, but it
+ * should at least help a bit.
+ *
+ *  this is an issue to be handled in H3 itself (using 
+ *  unsigned long, ... etc as the return type).
+ */
+static int
+h3_maxPolyfillSize_checked(GeoPolygon *h3polygon, int resolution)
+{
+    int numHexagons = maxPolyfillSize(h3polygon, resolution);
+    int numHexagonsCoarserRes = 0;
+    if (resolution > 1) {
+        numHexagonsCoarserRes = maxPolyfillSize(h3polygon, resolution - 1);
+    }
+
+    if ((numHexagons < 0) || (numHexagons == INT_MAX) || 
+                ((numHexagonsCoarserRes != 0) && (numHexagonsCoarserRes >= numHexagons))) {
+        fail_and_report_with_code(
+                    ERRCODE_NUMERIC_VALUE_OUT_OF_RANGE,
+                    "Integer overflow detected when estimating the number of hexagons "
+                    "for a polyfill at resolution %d. Please use a smaller resolution.", resolution);
+    }
+
+    return numHexagons;
+}
+
+
 PG_FUNCTION_INFO_V1(_h3_polyfill_polygon);
 
 Datum
@@ -147,10 +182,7 @@ _h3_polyfill_polygon(PG_FUNCTION_ARGS)
         GeoPolygon h3polygon;
         __h3_polyfill_build_geopolygon(&h3polygon, exterior_ring, interior_rings);
 
-        int numHexagons = maxPolyfillSize(&h3polygon, resolution);
-
-        // POSSIBLE ISSUE: integer may overflow on  high number of hexagons. this is an issue to
-        // be handled in H3 itself (using unsigned long, ... etc as the return type).
+        int numHexagons = h3_maxPolyfillSize_checked(&h3polygon, resolution);
 
         report_debug1("Generating an estimated number of %d H3 "
                         "hexagons at resolution %d", numHexagons, resolution);
@@ -231,7 +263,7 @@ _h3_polyfill_polygon_estimate(PG_FUNCTION_ARGS)
     GeoPolygon h3polygon;
     __h3_polyfill_build_geopolygon(&h3polygon, exterior_ring, interior_rings);
 
-    int numHexagons = maxPolyfillSize(&h3polygon, resolution);
+    int numHexagons = h3_maxPolyfillSize_checked(&h3polygon, resolution);
 
     __h3_free_geopolygon_internal_structs(&h3polygon);
 

@@ -39,11 +39,20 @@ __Run the tests__ (this is an optional step):
 
     make installcheck
 
-## Configuration
+## Usage
+
+Before using this extension, it needs to be added to the databases using postgresqls [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/sql-createextension.html) command:
+
+    create extension postgis; -- dependency of pgh3, must be created first
+    create extension pgh3;
+
+For usage examples see the unittests in the `sql/*_test.sql` files.
+
+### Configuration
 
 This extensions allows configuring some parts of its behaviour. This configuration is done using additional keys to `postgresql.conf`
 
-### pgh3.polyfill_mem
+#### pgh3.polyfill_mem
 
 The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending of the size of the
 given polygon, its shape and the resolution this may exhaust the memory given to this extension. In this case
@@ -56,14 +65,20 @@ default value for this setting 1024MB (PostgreSQL internal `MaxAllocSize`). Synt
 
 For values larger than `MaxAllocSize`, the PostgreSQL `MemoryContextAllocHuge` allocator will be used.
 
-## Usage
 
-Before using this extension, it needs to be added to the databases using postgresqls [CREATE EXTENSION](https://www.postgresql.org/docs/current/static/sql-createextension.html) command:
+### Error handling
 
-    create extension postgis; -- dependency of pgh3, must be created first
-    create extension pgh3;
+Most errors emmitted by this extension are making use of the [PostgreSQL error codes](https://www.postgresql.org/docs/current/errcodes-appendix.html).
+This allows a more explicit handling of certain errors in application code or PL/pgSQL procedures. To give a short example using the `psql` command line:
 
-For usage examples see the unittests in the `sql/*_test.sql` files.
+    h3=# \set VERBOSITY verbose 
+    h3=# select count(*) from h3_polyfill(st_geomfromtext('POLYGON((30 10,40 40,20 40,10 20,30 10))'), 10);
+    ERROR:  53400: pgh3.polyfill_mem: requested memory allocation (7.58GB) exceeded the configured value (1023MB).
+    CONTEXT:  PL/pgSQL function h3_polyfill(geometry,integer) line 4 at RETURN QUERY
+    LOCATION:  __h3_polyfill_palloc0, util.c:158
+
+Looking at he PostgreSQL documentaion, error code `53400` stands for `configuration_limit_exceeded`.
+
 
 ## TODO
 

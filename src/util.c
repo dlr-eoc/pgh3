@@ -125,10 +125,16 @@ __h3_polyfill_palloc0(size_t size)
     if (max_polyfill_mem <= 0) {
         const char * max_polyfill_mem_str = GetConfigOptionByName(PGH3_POLYFILL_MEM_SETTING_NAME, NULL, true);
         if (max_polyfill_mem_str != NULL) {
+
             int max_polyfill_mem_mb = 0;
+
             if (!parse_int(max_polyfill_mem_str, &max_polyfill_mem_mb, GUC_UNIT_MB, NULL)) {
-                fail_and_report(PGH3_POLYFILL_MEM_SETTING_NAME ": could not parse value \"%s\"",
+
+                fail_and_report_with_code(
+                        ERRCODE_CONFIG_FILE_ERROR,
+                        PGH3_POLYFILL_MEM_SETTING_NAME ": could not parse value \"%s\"",
                         max_polyfill_mem_str);
+
             }
             max_polyfill_mem = (size_t)max_polyfill_mem_mb * 1024 * 1024;
         }
@@ -144,9 +150,13 @@ __h3_polyfill_palloc0(size_t size)
             max_polyfill_mem / 1024 /1024);
 
     if (size > max_polyfill_mem) {
-        fail_and_report(PGH3_POLYFILL_MEM_SETTING_NAME ": requested memory allocation (%s) exceeded the configured value (%ldMB).",
+
+        fail_and_report_with_code(
+                ERRCODE_CONFIGURATION_LIMIT_EXCEEDED,
+                PGH3_POLYFILL_MEM_SETTING_NAME ": requested memory allocation (%s) exceeded the configured value (%ldMB).",
                 human_byte_size(size),
                 max_polyfill_mem / 1024 /1024);
+
     }
 
     int flags = 0;

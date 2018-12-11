@@ -29,13 +29,12 @@
 
 #define ARRNELEMS(x)  ArrayGetNItems(ARR_NDIM(x), ARR_DIMS(x))
 
-#define fail_and_report(msg, ...) \
-             ereport(ERROR, \
-                (errcode(ERRCODE_EXTERNAL_ROUTINE_EXCEPTION), errmsg(msg, ##__VA_ARGS__)));
-
 #define fail_and_report_with_code(code, msg, ...) \
              ereport(ERROR, \
                 (errcode(code), errmsg(msg, ##__VA_ARGS__)));
+
+#define fail_and_report(msg, ...) \
+            fail_and_report_with_code(ERRCODE_EXTERNAL_ROUTINE_EXCEPTION, msg, ##__VA_ARGS__);
 
 #define report_notice(msg, ...) \
             ereport(NOTICE, \

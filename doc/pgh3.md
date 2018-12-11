@@ -138,6 +138,8 @@ default value for this setting 1024MB (PostgreSQL internal `MaxAllocSize`). Synt
 
 For values larger than `MaxAllocSize`, the PostgreSQL `MemoryContextAllocHuge` allocator will be used.
 
+_This setting is only available when using a PostgreSQL version >= 10_. On earlier versions the memory limit is set to 1024MB.
+
 If this does not resolve the issue, there is essentially one way to work around this issue: Cut the polygon into segments and run this function to each of them seperately. The PostGIS functions `ST_Subdivide`, `ST_Split` and `ST_Segmentize` may be helpful.
 
 

@@ -65,6 +65,7 @@ default value for this setting 1024MB (PostgreSQL internal `MaxAllocSize`). Synt
 
 For values larger than `MaxAllocSize`, the PostgreSQL `MemoryContextAllocHuge` allocator will be used.
 
+_This setting is only available when using a PostgreSQL version >= 10_. On earlier versions the memory limit is set to 1024MB.
 
 ### Error handling
 

@@ -122,6 +122,8 @@ __h3_polyfill_palloc0(size_t size)
 {
     static size_t max_polyfill_mem = 0;
 
+#if PG_VERSION_NUM > 100000 // GetConfigOptionByName(const char *name, const char **varname, bool missing_ok)
+                            // exists with PG 9.6+, GUC_UNIT_MB with PG 10
     if (max_polyfill_mem <= 0) {
         const char * max_polyfill_mem_str = GetConfigOptionByName(PGH3_POLYFILL_MEM_SETTING_NAME, NULL, true);
         if (max_polyfill_mem_str != NULL) {
@@ -139,6 +141,7 @@ __h3_polyfill_palloc0(size_t size)
             max_polyfill_mem = (size_t)max_polyfill_mem_mb * 1024 * 1024;
         }
     }
+#endif
 
     // not set, so set max. possible allocation using the standard allocator
     if (max_polyfill_mem == 0) {
@@ -153,7 +156,7 @@ __h3_polyfill_palloc0(size_t size)
 
         fail_and_report_with_code(
                 ERRCODE_CONFIGURATION_LIMIT_EXCEEDED,
-                PGH3_POLYFILL_MEM_SETTING_NAME ": requested memory allocation (%s) exceeded the configured value (%ldMB).",
+                PGH3_POLYFILL_MEM_SETTING_NAME ": requested memory allocation (%s) exceeds the upper limit (%ldMB).",
                 human_byte_size(size),
                 max_polyfill_mem / 1024 /1024);
 

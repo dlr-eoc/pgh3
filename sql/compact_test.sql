@@ -49,3 +49,15 @@ insert into sunnyvale (h3index) values
 select count(*) from h3_compact(array(select h3index from sunnyvale));
 
 select h3_compact(array((select h3_to_children('89283470c27ffff', 10))));
+
+select h3_uncompact(array['89283470c27ffff'], 10) except select h3_to_children('89283470c27ffff', 10);
+
+-- test a full round trip (1/2). should return 0 rows.
+select h3index from sunnyvale
+except
+select h3_uncompact(array[h3_compact(array(select h3index from sunnyvale))], 9);
+
+-- test a full round trip (2/2). should return 0 rows.
+select h3_uncompact(array[h3_compact(array(select h3index from sunnyvale))], 9)
+except
+select h3index from sunnyvale;

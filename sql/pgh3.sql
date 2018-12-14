@@ -237,3 +237,10 @@ IMMUTABLE LANGUAGE C;
 comment on function h3_compact(h3indexes text[]) is
     'Compacts the array of given H3 indexes as best as possible';
 
+
+CREATE FUNCTION h3_uncompact(h3indexes text[], resolution integer) RETURNS SETOF text
+AS 'pgh3', 'h3_uncompact'
+IMMUTABLE LANGUAGE C;
+comment on function h3_uncompact(h3indexes text[], resolution integer) is
+    'Uncompacts the array of given H3 indexes';
+

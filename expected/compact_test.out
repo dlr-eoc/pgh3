@@ -57,3 +57,24 @@ select h3_compact(array((select h3_to_children('89283470c27ffff', 10))));
  89283470c27ffff
 (1 row)
 
+select h3_uncompact(array['89283470c27ffff'], 10) except select h3_to_children('89283470c27ffff', 10);
+ h3_uncompact 
+--------------
+(0 rows)
+
+-- test a full round trip (1/2). should return 0 rows.
+select h3index from sunnyvale
+except
+select h3_uncompact(array[h3_compact(array(select h3index from sunnyvale))], 9);
+ h3index 
+---------
+(0 rows)
+
+-- test a full round trip (2/2). should return 0 rows.
+select h3_uncompact(array[h3_compact(array(select h3index from sunnyvale))], 9)
+except
+select h3index from sunnyvale;
+ h3_uncompact 
+--------------
+(0 rows)
+

@@ -48,7 +48,7 @@ h3_to_parent(PG_FUNCTION_ARGS)
 
     int resolution = PG_GETARG_INT32(1);
 
-    H3Index parent = h3ToParent(index, resolution);
+    H3Index parent = H3_EXPORT(h3ToParent)(index, resolution);
 
     text * parent_text = __h3_index_to_text(parent);
     PG_RETURN_TEXT_P(parent_text);
@@ -84,14 +84,14 @@ h3_to_children(PG_FUNCTION_ARGS)
         funcctx = SRF_FIRSTCALL_INIT();
         oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
 
-        int num_children = maxH3ToChildrenSize(parent_index, child_resolution);
+        int num_children = H3_EXPORT(maxH3ToChildrenSize)(parent_index, child_resolution);
         max_calls = num_children;
 
         report_debug1("Generating %d H3 child hexagons at resolution %d", 
                         num_children, child_resolution);
 
         hexagons = palloc0(num_children * sizeof(H3Index));
-        h3ToChildren(parent_index, child_resolution, hexagons);
+        H3_EXPORT(h3ToChildren)(parent_index, child_resolution, hexagons);
 
         if (max_calls > 0) {
             // keep track of the results

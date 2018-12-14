@@ -134,10 +134,10 @@ __h3_polyfill_build_geopolygon(GeoPolygon *h3polygon, POLYGON *exterior_ring, Ar
 static int
 h3_maxPolyfillSize_checked(GeoPolygon *h3polygon, int resolution)
 {
-    int numHexagons = maxPolyfillSize(h3polygon, resolution);
+    int numHexagons = H3_EXPORT(maxPolyfillSize)(h3polygon, resolution);
     int numHexagonsCoarserRes = 0;
     if (resolution > 1) {
-        numHexagonsCoarserRes = maxPolyfillSize(h3polygon, resolution - 1);
+        numHexagonsCoarserRes = H3_EXPORT(maxPolyfillSize)(h3polygon, resolution - 1);
     }
 
     if ((numHexagons < 0) || (numHexagons == INT_MAX) || 
@@ -188,7 +188,7 @@ _h3_polyfill_polygon(PG_FUNCTION_ARGS)
                         "hexagons at resolution %d", numHexagons, resolution);
 
         hexagons = __h3_polyfill_palloc0(numHexagons * sizeof(H3Index));
-        polyfill(&h3polygon, resolution, hexagons);
+        H3_EXPORT(polyfill)(&h3polygon, resolution, hexagons);
         __h3_free_geopolygon_internal_structs(&h3polygon);
 
         for (int i = 0; i < numHexagons; i++) {

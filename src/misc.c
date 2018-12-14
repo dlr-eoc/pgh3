@@ -33,7 +33,7 @@
     FUNC_NAME(PG_FUNCTION_ARGS) \
     { \
         int resolution = PG_GETARG_INT32(0); \
-        double value = H3_FUNC_NAME(resolution); \
+        double value = H3_EXPORT(H3_FUNC_NAME)(resolution); \
         PG_RETURN_FLOAT8(value); \
     }
 

@@ -34,7 +34,7 @@ __h3_index_to_text(H3Index index)
     char *outstr = (char *) palloc0(H3_INDEX_STR_LEN * sizeof(char));
     SET_VARSIZE(outstr, H3_INDEX_STR_LEN * sizeof(char));
 
-    h3ToString(index, outstr, H3_INDEX_STR_LEN);
+    H3_EXPORT(h3ToString)(index, outstr, H3_INDEX_STR_LEN);
 
     text *iout = cstring_to_text(outstr);
     pfree(outstr);

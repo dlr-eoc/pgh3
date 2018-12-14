@@ -48,7 +48,7 @@ h3_geo_to_h3index(PG_FUNCTION_ARGS)
 
     int resolution = PG_GETARG_INT32(1);
 
-    H3Index index = geoToH3(&location, resolution);
+    H3Index index = H3_EXPORT(geoToH3)(&location, resolution);
     if (index == 0) {
         fail_and_report("Could not convert the coordinates (%f %f) to a H3 index", p->x, p->y);
     }
@@ -76,7 +76,7 @@ _h3_h3index_to_geo(PG_FUNCTION_ARGS)
     __h3_index_from_cstring(index_cstr, &index);
 
     GeoCoord coord;
-    h3ToGeo(index, &coord);
+    H3_EXPORT(h3ToGeo)(index, &coord);
 
     // return as a postgresql native point
     Point *p = palloc0(sizeof(Point));
@@ -106,7 +106,7 @@ _h3_h3index_to_geoboundary(PG_FUNCTION_ARGS)
     __h3_index_from_cstring(index_cstr, &index);
 
     GeoBoundary gp;
-    h3ToGeoBoundary(index, &gp);
+    H3_EXPORT(h3ToGeoBoundary)(index, &gp);
 
     // return as an polygon
     //
@@ -145,7 +145,7 @@ h3_h3index_is_valid(PG_FUNCTION_ARGS)
     H3Index index;
     __h3_index_from_cstring(index_cstr, &index);
 
-    int isvalid = h3IsValid(index);
+    int isvalid = H3_EXPORT(h3IsValid)(index);
 
     PG_RETURN_BOOL(isvalid != 0);
 }
@@ -167,7 +167,7 @@ h3_get_resolution(PG_FUNCTION_ARGS)
     H3Index index;
     __h3_index_from_cstring(index_cstr, &index);
 
-    int res = h3GetResolution(index); 
+    int res = H3_EXPORT(h3GetResolution)(index); 
 
     PG_RETURN_INT32(res);
 }
@@ -189,7 +189,7 @@ h3_get_basecell(PG_FUNCTION_ARGS)
     H3Index index;
     __h3_index_from_cstring(index_cstr, &index);
 
-    int basecell = h3GetBaseCell(index); 
+    int basecell = H3_EXPORT(h3GetBaseCell)(index); 
 
     PG_RETURN_INT32(basecell);
 }

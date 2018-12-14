@@ -59,7 +59,7 @@ h3_kring(PG_FUNCTION_ARGS)
         funcctx = SRF_FIRSTCALL_INIT();
         oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
 
-        int max_num_neighbors = maxKringSize(distance);
+        int max_num_neighbors = H3_EXPORT(maxKringSize)(distance);
 
         report_debug1("Generating %d H3 child hexagons within distance %d", 
                         max_num_neighbors, distance);

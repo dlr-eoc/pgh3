@@ -227,3 +227,13 @@ end;
 $$ language plpgsql immutable strict;
 comment on function h3_polyfill_estimate(polygong geometry, resolution integer) is 
     'Estimate the number of indexes required to fill the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.';
+
+
+/******* compacting functions *********************************/
+
+CREATE FUNCTION h3_compact(h3indexes text[]) RETURNS SETOF text
+AS 'pgh3', 'h3_compact'
+IMMUTABLE LANGUAGE C;
+comment on function h3_compact(h3indexes text[]) is
+    'Compacts the array of given H3 indexes as best as possible';
+

@@ -6,6 +6,15 @@ Postgresql extension to wrap the hexagonal hierarchical geospatial indexing syst
 
 ## Functions
 
+### h3_compact
+
+Compacts the array of given H3 indexes as best as possible
+
+__Synopsis:__ `h3_compact(h3indexes text[])`
+
+__Returntype:__ `SETOF text`
+
+
 ### h3_edge_length_km
 
 Average hexagon edge length in kilometers at the given resolution.
@@ -173,6 +182,15 @@ Returns the parent (coarser) index containing the given index.
 __Synopsis:__ `h3_to_parent(h3index text, resolution integer)`
 
 __Returntype:__ `text`
+
+
+### h3_uncompact
+
+Uncompacts the array of given H3 indexes
+
+__Synopsis:__ `h3_uncompact(h3indexes text[], resolution integer)`
+
+__Returntype:__ `SETOF text`
 
 
 

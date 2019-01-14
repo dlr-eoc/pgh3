@@ -89,7 +89,7 @@ __Returntype:__ `boolean`
 
 ### h3_h3index_to_geo
 
-Convert a H3 index to coordinates. Returned as a PostGIS point geometrry.
+Convert a H3 index to coordinates. Returned as a PostGIS point geometry.
 
 __Synopsis:__ `h3_h3index_to_geo(h3index text)`
 
@@ -98,7 +98,7 @@ __Returntype:__ `geometry`
 
 ### h3_h3index_to_geoboundary
 
-Convert the boundary of H3 index to polygon coordinates. Returned as a PostGIS polygon geometrry.
+Convert the boundary of H3 index to polygon coordinates. Returned as a PostGIS polygon geometry.
 
 __Synopsis:__ `h3_h3index_to_geoboundary(h3index text)`
 
@@ -125,7 +125,7 @@ __Returntype:__ `double precision`
 
 ### h3_kring
 
-Returns the neigbor indices within the given distance.
+Returns the neighbor indices within the given distance.
 
 __Synopsis:__ `h3_kring(h3index text, distance integer)`
 
@@ -136,11 +136,11 @@ __Returntype:__ `SETOF text`
 
 Fills the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.
 
-The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending of the size of the
-given polygon, its shape and the resolution this may exhaust the memory given to this extension. In this case
+The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending on the size of the
+given polygon, its shape and resolution this may exhaust the memory given to this extension. In this case
 this function will be terminated by the database server and a corresponding notice will be given.
 
-This memory limit can be increased using the `pgh3.polyfill_mem` configuration parameter in the `postgresql.conf` file. The 
+The memory limit can be increased using the `pgh3.polyfill_mem` configuration parameter in the `postgresql.conf` file. The 
 default value for this setting 1024MB (PostgreSQL internal `MaxAllocSize`). Syntax for the setting is
 
     pgh3.polyfill_mem = 1024MB
@@ -168,7 +168,7 @@ __Returntype:__ `integer`
 
 ### h3_to_children
 
-Returns the children (finer) indeesx contained the given index.
+Returns the children (finer) indexes contained the given index.
 
 __Synopsis:__ `h3_to_children(h3index text, resolution integer)`
 

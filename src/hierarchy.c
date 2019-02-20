@@ -61,7 +61,7 @@ PG_FUNCTION_INFO_V1(h3_to_children);
  * Return the child (finer) index contained the index in the given 
  * resolution.
  *
- * The indexex are returned in thier string representations
+ * The indexes are returned in thier string representations
  */
 Datum
 h3_to_children(PG_FUNCTION_ARGS)

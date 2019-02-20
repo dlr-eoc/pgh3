@@ -26,6 +26,7 @@
 #include "fmgr.h"
 #include "utils/array.h"
 #include "utils/geo_decls.h"
+#include "funcapi.h"
 
 #include <h3/h3api.h>
 
@@ -193,3 +194,70 @@ h3_get_basecell(PG_FUNCTION_ARGS)
 
     PG_RETURN_INT32(basecell);
 }
+
+
+#if PGH3_H3_VERSION_NUM >= 30400
+
+PG_FUNCTION_INFO_V1(h3_get_basecells);
+
+/*
+ * Return all indexes at resolution 0, the base cells.
+ *
+ * The indexes are returned in thier string representations
+ */
+Datum
+h3_get_basecells(PG_FUNCTION_ARGS)
+{
+    FuncCallContext *funcctx;
+    int call_cntr = 0;
+    int max_calls = 0;
+    MemoryContext oldcontext;
+    H3Index *hexagons = NULL;
+
+    if (SRF_IS_FIRSTCALL()) {
+        funcctx = SRF_FIRSTCALL_INIT();
+        oldcontext = MemoryContextSwitchTo(funcctx->multi_call_memory_ctx);
+
+        int num_children = H3_EXPORT(res0IndexCount)();
+        max_calls = num_children;
+
+        hexagons = palloc0(num_children * sizeof(H3Index));
+        H3_EXPORT(getRes0Indexes)(hexagons);
+
+        if (max_calls > 0) {
+            // keep track of the results
+            funcctx->max_calls = max_calls;
+            funcctx->user_fctx = hexagons;
+        }
+        else {
+            // fast track when no results
+            pfree(hexagons);
+            hexagons = NULL;
+
+            MemoryContextSwitchTo(oldcontext);
+            SRF_RETURN_DONE(funcctx);
+        }
+        MemoryContextSwitchTo(oldcontext);
+    }
+
+    // stuff done on every call of the function
+    funcctx = SRF_PERCALL_SETUP();
+
+    // Initialize per-call variables
+    call_cntr = funcctx->call_cntr;
+    max_calls = funcctx->max_calls;
+    hexagons = funcctx->user_fctx;
+
+    if (call_cntr < max_calls) {
+        text * index_text = __h3_index_to_text(hexagons[call_cntr]);
+        SRF_RETURN_NEXT(funcctx, PointerGetDatum(index_text));
+    }
+    else {
+        pfree(hexagons);
+        hexagons = NULL;
+
+        SRF_RETURN_DONE(funcctx);
+    }
+}
+
+#endif

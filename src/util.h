@@ -48,6 +48,14 @@
 // custom options
 #define PGH3_POLYFILL_MEM_SETTING_NAME "pgh3.polyfill_mem"
 
+// combined version number for H3, using the same method postgresql uses
+#ifdef H3_VERSION_MAJOR
+#define PGH3_H3_VERSION_NUM (H3_VERSION_MAJOR * 10000) + (H3_VERSION_MINOR * 100) + H3_VERSION_PATCH
+#else
+#define PGH3_H3_VERSION_NUM 0
+#endif
+
+
 text * __h3_index_to_text(H3Index);
 void __h3_make_bound_box(POLYGON *poly);
 bool __h3_index_from_cstring(const char *str, H3Index *index);

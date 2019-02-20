@@ -69,6 +69,15 @@ __Synopsis:__ `h3_get_basecell(h3index text)`
 __Returntype:__ `integer`
 
 
+### h3_get_basecells
+
+Returns all base cells.
+
+__Synopsis:__ `h3_get_basecells()`
+
+__Returntype:__ `SETOF text`
+
+
 ### h3_get_resolution
 
 Get the resolution for a H3 index.

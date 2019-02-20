@@ -49,3 +49,4 @@ H3_RES_TO_FLOAT8_FUNC(h3_edge_length_km, edgeLengthKm);
 
 PG_FUNCTION_INFO_V1(h3_edge_length_m);
 H3_RES_TO_FLOAT8_FUNC(h3_edge_length_m, edgeLengthM);
+

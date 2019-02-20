@@ -48,7 +48,7 @@ begin
     return g;
 end;
 $$ language plpgsql immutable strict;
-comment on function h3_h3index_to_geo(h3index text) is 'Convert a H3 index to coordinates. Returned as a PostGIS point geometrry.';
+comment on function h3_h3index_to_geo(h3index text) is 'Convert a H3 index to coordinates. Returned as a PostGIS point geometry.';
 
 
 
@@ -68,7 +68,7 @@ begin
     return g;
 end;
 $$ language plpgsql immutable strict;
-comment on function h3_h3index_to_geoboundary(h3index text) is 'Convert the boundary of H3 index to polygon coordinates. Returned as a PostGIS polygon geometrry.';
+comment on function h3_h3index_to_geoboundary(h3index text) is 'Convert the boundary of H3 index to polygon coordinates. Returned as a PostGIS polygon geometry.';
 
 
 create function h3_h3index_is_valid(h3index text) returns boolean
@@ -86,6 +86,19 @@ as 'pgh3', 'h3_get_basecell'
 IMMUTABLE LANGUAGE C STRICT ;
 comment on function h3_get_basecell(h3index text) is 'Get the base cell for a H3 index.';
 
+-- this syntax requires postgresql >= 9. To support earlier versions a
+-- temporary function instead of the block would be needed
+do $$
+begin
+    create function h3_get_basecells() returns setof text
+    as 'pgh3', 'h3_get_basecells'
+    immutable language c strict ;
+    comment on function h3_get_basecells() is 'Returns all base cells.';
+exception when undefined_function then
+    -- ignore. pgh3 is compiled without this function.
+    raise notice 'h3_get_basecells is not supported';
+end $$;
+
 
 /******* hierarchy functions *********************************/
 
@@ -97,15 +110,15 @@ comment on function h3_to_parent(h3index text, resolution integer) is 'Returns t
 
 create function h3_to_children(h3index text, resolution integer) returns setof text
 as 'pgh3', 'h3_to_children'
-IMMUTABLE LANGUAGE C STRICT ;
-comment on function h3_to_children(h3index text, resolution integer) is 'Returns the children (finer) indeesx contained the given index.';
+immutable language c strict ;
+comment on function h3_to_children(h3index text, resolution integer) is 'Returns the children (finer) indexes contained the given index.';
 
-/******* neigbor functions *********************************/
+/******* neighbor functions *********************************/
 
 create function h3_kring(h3index text, distance integer) returns setof text
 as 'pgh3', 'h3_kring'
 IMMUTABLE LANGUAGE C STRICT ;
-comment on function h3_kring(h3index text, distance integer) is 'Returns the neigbor indices within the given distance.';
+comment on function h3_kring(h3index text, distance integer) is 'Returns the neighbor indices within the given distance.';
 
 /******* misc functions *********************************/
 
@@ -170,11 +183,11 @@ $$ language plpgsql immutable strict;
 comment on function h3_polyfill(polygong geometry, resolution integer) is 
     'Fills the given PostGIS polygon or multipolygon with hexagons at the given resolution. Holes in the polygon will be omitted.
 
-The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending of the size of the
-given polygon, its shape and the resolution this may exhaust the memory given to this extension. In this case
+The H3 `polyfill` function requires a preallocation of the memory for the generates indexes. Depending on the size of the
+given polygon, its shape and resolution this may exhaust the memory given to this extension. In this case
 this function will be terminated by the database server and a corresponding notice will be given.
 
-This memory limit can be increased using the `pgh3.polyfill_mem` configuration parameter in the `postgresql.conf` file. The 
+The memory limit can be increased using the `pgh3.polyfill_mem` configuration parameter in the `postgresql.conf` file. The 
 default value for this setting 1024MB (PostgreSQL internal `MaxAllocSize`). Syntax for the setting is
 
     pgh3.polyfill_mem = 1024MB

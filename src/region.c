@@ -135,13 +135,8 @@ static int
 h3_maxPolyfillSize_checked(GeoPolygon *h3polygon, int resolution)
 {
     int numHexagons = H3_EXPORT(maxPolyfillSize)(h3polygon, resolution);
-    int numHexagonsCoarserRes = 0;
-    if (resolution > 1) {
-        numHexagonsCoarserRes = H3_EXPORT(maxPolyfillSize)(h3polygon, resolution - 1);
-    }
 
-    if ((numHexagons < 0) || (numHexagons == INT_MAX) || 
-                ((numHexagonsCoarserRes != 0) && (numHexagonsCoarserRes >= numHexagons))) {
+    if ((numHexagons < 0) || (numHexagons == INT_MAX)) {
         fail_and_report_with_code(
                     ERRCODE_NUMERIC_VALUE_OUT_OF_RANGE,
                     "Integer overflow detected when estimating the number of hexagons "

@@ -5,3 +5,4 @@
 *.ignored
 sql/*--*.sql
 /results
+.idea
